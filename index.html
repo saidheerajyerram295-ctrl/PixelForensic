@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pixel_Forensics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #080b12;
+    color: #e0f7fa;
+    text-align: center;
+}
+
+h1 { color: #00e5ff; font-size: 42px; }
+h2 { color: #ffcc00; }
+
+.container { padding: 30px; }
+.hidden { display: none; }
+
+.box {
+    background: #121826;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 850px;
+    margin: auto;
+}
+
+button {
+    padding: 14px 28px;
+    font-size: 17px;
+    border: none;
+    border-radius: 8px;
+    background: #00e5ff;
+    cursor: pointer;
+}
+
+button:hover { background: #00bcd4; }
+
+textarea {
+    width: 90%;
+    height: 100px;
+    font-size: 16px;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.timer {
+    font-size: 22px;
+    color: #ff5252;
+    margin-bottom: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PAGE 1 -->
+<div class="container" id="page1">
+    <h1>🔍 PIXEL_FORENSICS</h1>
+    <h2>Digital Evidence Never Lies</h2>
+    <br>
+    <button onclick="showRules()">START</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="container hidden" id="page2">
+    <div class="box">
+        <h2>🧾 RULES</h2>
+        ⏱ Time: 15 Minutes<br>
+        ❌ No Internet Search<br>
+        ❌ No Mobile Phones<br>
+        ✅ Digital Analysis Only<br><br>
+        <button onclick="startGame()">BEGIN INVESTIGATION</button>
+    </div>
+</div>
+
+<!-- LEVEL 1 -->
+<div class="container hidden" id="level1">
+    <div class="box">
+        <div class="timer" id="timer">Time: 15:00</div>
+        <h2>LEVEL 1 – IMAGE MANIPULATION</h2>
+        <p>
+        A photo shows blurred facial edges but a sharp background.
+        Compression artifacts differ around the face.
+        </p>
+        <p><b>Which forensic method detects this?</b></p>
+
+        <textarea id="ans1"></textarea><br><br>
+        <button onclick="checkLevel1()">SUBMIT</button>
+        <p id="res1"></p>
+    </div>
+</div>
+
+<!-- LEVEL 2 -->
+<div class="container hidden" id="level2">
+    <div class="box">
+        <h2>LEVEL 2 – METADATA FORENSICS</h2>
+        <p>
+        An image claims to be captured in 2024,
+        but metadata shows editing software used.
+        </p>
+        <p><b>What forensic data is being analyzed?</b></p>
+
+        <textarea id="ans2"></textarea><br><br>
+        <button onclick="checkLevel2()">SUBMIT</button>
+        <p id="res2"></p>
+    </div>
+</div>
+
+<!-- FINAL -->
+<div class="container hidden" id="final">
+    <div class="box">
+        <h2>🏆 INVESTIGATION COMPLETE</h2>
+        <p id="scoreText"></p>
+        <h3>Pixel_Forensics Cleared ✅</h3>
+    </div>
+</div>
+
+<script>
+let score = 0;
+let time = 900;
+let timerInterval;
+
+function showRules() {
+    page1.classList.add("hidden");
+    page2.classList.remove("hidden");
+}
+
+function startGame() {
+    page2.classList.add("hidden");
+    level1.classList.remove("hidden");
+    startTimer();
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        time--;
+        let min = Math.floor(time / 60);
+        let sec = time % 60;
+        timer.innerText = `Time: ${min}:${sec < 10 ? '0'+sec : sec}`;
+        if (time <= 0) {
+            clearInterval(timerInterval);
+            endGame();
+        }
+    }, 1000);
+}
+
+function checkLevel1() {
+    let a = ans1.value.toLowerCase();
+    if (a.includes("ela") || a.includes("error level")) {
+        score += 50;
+        res1.innerHTML = "✅ Correct!";
+        level1.classList.add("hidden");
+        level2.classList.remove("hidden");
+    } else {
+        res1.innerHTML = "❌ Think about compression differences.";
+    }
+}
+
+function checkLevel2() {
+    let a = ans2.value.toLowerCase();
+    if (a.includes("metadata") || a.includes("exif")) {
+        score += 50;
+        endGame();
+    } else {
+        res2.innerHTML = "❌ Focus on hidden image information.";
+    }
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    level1.classList.add("hidden");
+    level2.classList.add("hidden");
+    final.classList.remove("hidden");
+    scoreText.innerHTML = `Final Score: ${score} / 100`;
+}
+</script>
+
+</body>
+</html>
