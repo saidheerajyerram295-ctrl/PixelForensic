@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Pixel Forensics</title>
@@ -8,58 +8,41 @@
 <style>
 body{
     margin:0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: radial-gradient(circle at top, #0f2027, #000);
+    font-family: Arial, sans-serif;
+    background:#05080d;
     color:#e0f7fa;
     text-align:center;
 }
-.container{padding:35px;}
 .hidden{display:none;}
-
-h1{
-    color:#00e5ff;
-    font-size:42px;
-    letter-spacing:2px;
-}
-h2{color:#ffcc00;}
-.tagline{opacity:0.8;}
-
+.container{padding:30px;}
 .card{
-    background: rgba(18,24,32,0.95);
-    padding:28px;
+    background:#0f1623;
+    padding:25px;
     border-radius:14px;
-    max-width:880px;
+    max-width:900px;
     margin:auto;
-    box-shadow:0 0 25px rgba(0,229,255,0.25);
+    box-shadow:0 0 25px rgba(0,229,255,.3);
 }
-
 button{
-    padding:14px 30px;
-    font-size:16px;
+    padding:12px 26px;
     border:none;
-    border-radius:30px;
-    background: linear-gradient(135deg,#00e5ff,#00bcd4);
+    border-radius:25px;
+    background:#00e5ff;
+    font-size:15px;
     cursor:pointer;
 }
-button:hover{opacity:0.85;}
-
-textarea{
-    width:92%;
-    height:85px;
-    font-size:15px;
-    border-radius:8px;
-    padding:10px;
+button:hover{opacity:.85;}
+.option{
+    display:block;
+    margin:10px auto;
+    width:70%;
 }
-
 .timer{
-    font-size:20px;
     color:#ff5252;
-    margin-bottom:12px;
-    letter-spacing:1px;
+    font-size:20px;
+    margin-bottom:10px;
 }
-
 .level{
-    font-size:14px;
     color:#aaa;
     margin-bottom:6px;
 }
@@ -69,104 +52,130 @@ textarea{
 <body>
 
 <!-- START -->
-<div class="container" id="page1">
+<div class="container" id="start">
     <h1>PIXEL FORENSICS</h1>
-    <p class="tagline">Every Pixel Tells a Story</p>
-    <button onclick="showRules()">START ANALYSIS</button>
+    <p>Every Pixel Tells a Story</p>
+    <button onclick="showRules()">START</button>
 </div>
 
 <!-- RULES -->
-<div class="container hidden" id="page2">
+<div class="container hidden" id="rules">
     <div class="card">
-        <h2>CASE RULES</h2>
-        ⏱ Total Time: <b>10 Minutes</b><br>
-        🧩 Evidence Levels: <b>10</b><br>
-        ❌ No Internet / Phones<br>
-        ✅ Logical & Forensic Analysis Only<br><br>
-        <button onclick="startGame()">OPEN CASE FILE</button>
+        ⏱ Time: 10 Minutes<br>
+        🧪 Levels: 10<br>
+        🖼 Image & 🎥 Video only<br>
+        ❌ No Internet / Phones<br><br>
+        <button onclick="startGame()">BEGIN</button>
     </div>
 </div>
 
 <!-- GAME -->
 <div class="container hidden" id="game">
     <div class="card">
-        <div class="timer" id="timer">TIME LEFT: 10:00</div>
-        <div class="level" id="levelText">CASE 1 / 10</div>
+        <div class="timer" id="timer">Time Left: 10:00</div>
+        <div class="level" id="levelText"></div>
         <h2 id="question"></h2>
-        <textarea id="answer" placeholder="Write your forensic finding..."></textarea><br><br>
-        <button onclick="submitAnswer()">SUBMIT EVIDENCE</button>
+
+        <!-- PLACE IMAGE / VIDEO HERE LATER -->
+
+        <div id="options"></div>
         <p id="result"></p>
     </div>
 </div>
 
-<!-- RESULT -->
+<!-- BONUS -->
+<div class="container hidden" id="bonus">
+    <div class="card">
+        <h2>BONUS CASE 🔥</h2>
+        <p>Identify whether the evidence is ORIGINAL or FAKE</p>
+        <button class="option" onclick="endGame()">ORIGINAL</button>
+        <button class="option" onclick="endGame()">FAKE</button>
+    </div>
+</div>
+
+<!-- FINAL -->
 <div class="container hidden" id="final">
     <div class="card">
         <h2>CASE CLOSED</h2>
-        <p id="finalScore"></p>
-        <h3>✔ Investigation Completed</h3>
+        <p id="scoreText"></p>
     </div>
 </div>
 
 <script>
-let level=0, score=0, time=600, timerInterval;
+let time=600, score=0, level=0, timerInt;
 
-const cases=[
- {q:"Uneven compression around a face indicates which forensic method?", a:["ela","error level"]},
- {q:"Hidden capture date and editing software are stored in?", a:["metadata","exif"]},
- {q:"Copy-pasting elements from another image is called?", a:["splicing"]},
- {q:"Inconsistent shadows indicate what analysis?", a:["lighting","shadow"]},
- {q:"Repeated texture patterns indicate?", a:["cloning","clone"]},
- {q:"Soft borders around an object suggest?", a:["feathering","blending"]},
- {q:"Multiple JPEG saves cause what issue?", a:["compression"]},
- {q:"AI-generated face replacement is known as?", a:["deepfake"]},
- {q:"Pixel noise mismatch is found using?", a:["noise"]},
- {q:"Hash mismatch proves the image is?", a:["tampered","modified"]}
+const levels=[
+ {q:"IMAGE: Identify resolution quality", o:["720p","1080p","4K","Fake 4K"], a:3},
+ {q:"IMAGE: Extreme pixel quality test", o:["1080p","4K","8K","Upscaled"], a:3},
+ {q:"VIDEO: Identify video resolution", o:["720p","1080p","4K","Upscaled"], a:1},
+ {q:"VIDEO: Frame clarity analysis", o:["1080p","4K","8K","Fake 4K"], a:3},
+ {q:"IMAGE: Which one is ORIGINAL?", o:["Image A","Image B"], a:0},
+ {q:"IMAGE: Which one is FAKE?", o:["Image A","Image B"], a:1},
+ {q:"IMAGE: Original or Fake?", o:["Original","Fake"], a:1},
+ {q:"IMAGE: Tampering detection", o:["Original","Fake"], a:1},
+ {q:"VIDEO: Identify original video", o:["Video A","Video B"], a:0},
+ {q:"VIDEO: Deepfake detection", o:["Original","Fake"], a:1}
 ];
 
 function showRules(){
- page1.classList.add("hidden");
- page2.classList.remove("hidden");
+ start.classList.add("hidden");
+ rules.classList.remove("hidden");
 }
 
 function startGame(){
- page2.classList.add("hidden");
+ rules.classList.add("hidden");
  game.classList.remove("hidden");
  startTimer();
- loadCase();
+ loadLevel();
 }
 
 function startTimer(){
- timerInterval=setInterval(()=>{
+ timerInt=setInterval(()=>{
   time--;
   let m=Math.floor(time/60), s=time%60;
-  timer.innerText=`TIME LEFT: ${m}:${s<10?'0'+s:s}`;
+  timer.innerText=`Time Left: ${m}:${s<10?'0'+s:s}`;
   if(time<=0) endGame();
  },1000);
 }
 
-function loadCase(){
- levelText.innerText=`CASE ${level+1} / 10`;
- question.innerText=cases[level].q;
- answer.value=""; result.innerText="";
+function loadLevel(){
+ levelText.innerText=`LEVEL ${level+1} / 10`;
+ question.innerText=levels[level].q;
+ options.innerHTML="";
+ result.innerText="";
+ levels[level].o.forEach((op,i)=>{
+   let b=document.createElement("button");
+   b.innerText=op;
+   b.className="option";
+   b.onclick=()=>checkAnswer(i);
+   options.appendChild(b);
+ });
 }
 
-function submitAnswer(){
- let a=answer.value.toLowerCase();
- if(cases[level].a.some(k=>a.includes(k))){
-   score+=10; level++;
-   if(level<cases.length) loadCase();
-   else endGame();
+function checkAnswer(i){
+ if(i===levels[level].a){
+   score+=10;
+   level++;
+   if(level<levels.length) loadLevel();
+   else finishEarly();
  } else {
-   result.innerText="❌ Evidence not sufficient. Re-analyze.";
+   result.innerText="❌ Incorrect – analyze pixels again.";
  }
 }
 
+function finishEarly(){
+ if(time>0){
+  game.classList.add("hidden");
+  bonus.classList.remove("hidden");
+ } else endGame();
+}
+
 function endGame(){
- clearInterval(timerInterval);
+ clearInterval(timerInt);
+ bonus.classList.add("hidden");
  game.classList.add("hidden");
  final.classList.remove("hidden");
- finalScore.innerText=`FINAL SCORE: ${score} / 100`;
+ scoreText.innerText=`FINAL SCORE: ${score}`;
 }
 </script>
 
