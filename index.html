@@ -77,6 +77,15 @@ button:hover{opacity:.85;}
         <h2 id="question"></h2>
 
         <!-- PLACE IMAGE / VIDEO HERE LATER -->
+<img id="evidence"
+     src="level1.jpg"
+     alt="Level 1 Evidence"
+     style="
+        max-width:90%;
+        border-radius:12px;
+        margin:15px 0;
+        box-shadow:0 0 20px rgba(0,229,255,0.35);
+     ">
 
         <div id="options"></div>
         <p id="result"></p>
@@ -139,18 +148,29 @@ function startTimer(){
 }
 
 function loadLevel(){
- levelText.innerText=`LEVEL ${level+1} / 10`;
- question.innerText=levels[level].q;
- options.innerHTML="";
- result.innerText="";
- levels[level].o.forEach((op,i)=>{
-   let b=document.createElement("button");
-   b.innerText=op;
-   b.className="option";
-   b.onclick=()=>checkAnswer(i);
+ levelText.innerText = `LEVEL ${level+1} / 10`;
+ question.innerText = levels[level].q;
+ options.innerHTML = "";
+ result.innerText = "";
+
+ const img = document.getElementById("evidence");
+ if (img) {
+   if (level === 0) {
+     img.style.display = "block";
+   } else {
+     img.style.display = "none";
+   }
+ }
+
+ levels[level].o.forEach((op, i) => {
+   let b = document.createElement("button");
+   b.innerText = op;
+   b.className = "option";
+   b.onclick = () => checkAnswer(i);
    options.appendChild(b);
  });
 }
+
 
 function checkAnswer(i){
  if(i===levels[level].a){
